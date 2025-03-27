@@ -1,5 +1,6 @@
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Compiler {
@@ -22,25 +23,31 @@ public class Compiler {
 
         }
 
-        Queue<Data> data = ASMParser.parseData(scan);
+        QueueList<Data> data = ASMParser.parseData(scan);
         write(data, "output");
     }
 
 
 
-    static void write(Queue<Data> data, String filename) {
+    static void write(QueueList<Data> data, String filename) {
         // only handle unprefixed instructions
         
-        byte bytes[] = new byte[data.size()];
-        for (int i = 0; i < data.size(); i++) {
+        ArrayList<Byte> bytes = new ArrayList<>();
+        while (data.hasNext()) {
             Data d = data.dequeue();
             // insert instruction/data into byte array
-            bytes[i] = (byte)(d.toBinary());
-            i++;
+            byte[] rawData = d.toBinary();
+            for (byte dataByte : rawData) {
+                bytes.add(dataByte);
+            }
+            System.out.println("added data");
         }
         
         try (FileOutputStream F = new FileOutputStream(filename)) {
-            F.write(bytes);
+            // write bytes
+            for (Byte b : bytes) {
+                F.write(b);
+            }
         } catch (Exception e) {
             System.err.println("Failed to write compiled result to file");
         }

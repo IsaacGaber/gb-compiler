@@ -1170,7 +1170,7 @@
 				12
 			],
 			"operands": [
-				{
+				{ 
 					"name": "HL",
 					"immediate": false
 				},

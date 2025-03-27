@@ -1,6 +1,8 @@
-import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class InstructionSet {
-    public HashMap<String, Integer> UNPREFIXED;
-    public HashMap<String, Integer> CBPREFIXED;
+    public Map<String, Integer> UNPREFIXED;
+    public Map<String, Integer> CBPREFIXED;
+    public Set<String> MNEMONICS;
 }

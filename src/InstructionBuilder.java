@@ -1,6 +1,9 @@
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -11,7 +14,7 @@ public class InstructionBuilder {
     final static String OPCODES_PATH  = "src/Opcodes.json";
 
     public static InstructionSet buildInstructions() {
-        System.out.println("Started Building Instructions");
+        // System.out.println("Started Building Instructions");
         InstructionSet instructionSet = new InstructionSet();
         JSONObject a = new JSONObject();
         try {
@@ -24,12 +27,14 @@ public class InstructionBuilder {
             System.err.println("Could not load Opcodes.json");
         }        
         // initialize instruction hashmaps
-        HashMap<String, Integer> unprefixed = new HashMap<String, Integer>();
-        HashMap<String, Integer> cbprefixed = new HashMap<String, Integer>();
+        Map<String, Integer> unprefixed = new HashMap<String, Integer>();
+        Map<String, Integer> cbprefixed = new HashMap<String, Integer>();
+        Set<String> mnemonics = new HashSet<>();
+
         // iteratre through both sets of Strings
         for (int i = 0; i < 2; i++) {
             // loop setup
-            HashMap<String, Integer> instructions;
+            Map<String, Integer> instructions;
             JSONObject o = new JSONObject();
 
             if (i == 0) {
@@ -49,6 +54,8 @@ public class InstructionBuilder {
                 JSONObject jsonInstruction = (JSONObject) o.get(key);
                 // get attributes
                 String mnemonic = (String) jsonInstruction.get("mnemonic");
+                // add mnemonic to list of possible mnemonics if not already included
+                mnemonics.add(mnemonic);
                 // read dictionary which holds the number of cycles instruciton takes
                 JSONArray jsonCycles = (JSONArray)jsonInstruction.get("cycles");
                 int[] cycles = new int[jsonCycles.size()];
@@ -62,9 +69,18 @@ public class InstructionBuilder {
                 Operand lOperand = null;
                 Operand rOperand = null;
                 if (jsonOperands.size() > 0) {
-                    lOperand = Operand.stringToOperand(((JSONObject)jsonOperands.get(0)).get("name").toString());
+                    JSONObject jsonOperand = (JSONObject)jsonOperands.get(0);
+                    String name = jsonOperand.get("name").toString();
+                    Boolean immediate = Boolean.parseBoolean(jsonOperand.get("immediate").toString());
+                    lOperand = new Operand(name, immediate);
+                    // if (name.equals("A") && mnemonic.equals("INC")) {
+                    //     System.out.println(new Instruction(mnemonic, lOperand, rOperand));
+                    // }
                 } else if (jsonOperands.size() > 1){
-                    rOperand = Operand.stringToOperand(((JSONObject)jsonOperands.get(1)).get("name").toString());
+                    JSONObject jsonOperand = (JSONObject)jsonOperands.get(1);
+                    String name = jsonOperand.get("name").toString();
+                    Boolean immediate = Boolean.parseBoolean(jsonOperand.get("immediate").toString());
+                    rOperand = new Operand(name, immediate);
                 }
 
                 // initialize new instruction object and add to map
@@ -75,8 +91,9 @@ public class InstructionBuilder {
         }
         instructionSet.UNPREFIXED = unprefixed;
         instructionSet.CBPREFIXED = cbprefixed;
+        instructionSet.MNEMONICS = mnemonics;
 
-        System.out.println("Finished Building Instructions");
+        // System.out.println("Finished Building Instructions");
 
         return instructionSet;
     }

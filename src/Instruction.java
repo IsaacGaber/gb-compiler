@@ -5,7 +5,7 @@ public class Instruction implements Data {
     private final Operand _rOperand;
 
     // build instruction set -- used to get binary representation
-    private static final InstructionSet instructionSet = InstructionBuilder.buildInstructions();
+    public static final InstructionSet instructionSet = InstructionBuilder.buildInstructions();
 
 
     Instruction(String mnemonic, Operand lOperand, Operand rOperand){
@@ -32,7 +32,12 @@ public class Instruction implements Data {
     }
 
     @Override
-    public int toBinary() {
-        return instructionSet.UNPREFIXED.get(this.toString());
+    public byte[] toBinary() {
+        // System.err.println("attempting to convert instruction: " + this + " to binary");
+        try {
+            return new byte[]{(byte)(int)(instructionSet.UNPREFIXED.get(this.toString()))}; // extremely ugly, I know
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid instruction: " + this.toString());
+        }
     }
 }

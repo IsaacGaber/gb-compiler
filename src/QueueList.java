@@ -1,4 +1,4 @@
-public class Queue <T>{
+public class QueueList <T>{
     
     public class Node {
         T value;
